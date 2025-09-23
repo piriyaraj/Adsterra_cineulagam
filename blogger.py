@@ -28,7 +28,7 @@ class BloggerPublisher:
     def __init__(self):
         """Initialize Blogger API client"""
         self.service = None
-        self.blog_id = os.getenv('BLOGGER_BLOG_ID')
+        self.blog_id = os.getenv('BLOGGER_BLOG_ID',"6380171182056049355")
         self.credentials_file = os.getenv('BLOGGER_CREDENTIALS_FILE', 'credentials.json')
         self.token_file = os.getenv('BLOGGER_TOKEN_FILE', 'token.pickle')
         

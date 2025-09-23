@@ -25,7 +25,7 @@ class DatabaseManager:
         self.collection = None
         
         # MongoDB connection details
-        self.mongo_uri = os.getenv('MONGODB_URI')
+        self.mongo_uri = os.getenv('MONGODB_URI',"mongodb+srv://piriyaraj1998_db_user:cT0Qz5R4DoFad1Ef@cineulagam.jcy8gsj.mongodb.net/?retryWrites=true&w=majority&appName=Cineulagam")
         self.database_name = os.getenv('MONGODB_DATABASE', 'cineulagam')
         self.collection_name = os.getenv('MONGODB_COLLECTION', 'posted_articles')
         

@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  cineulagam-app:
+    build: .
+    container_name: cineulagam-publisher
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      # MongoDB Configuration
+      - MONGODB_URI=mongodb+srv://piriyaraj1998_db_user:cT0Qz5R4DoFad1Ef@cineulagam.jcy8gsj.mongodb.net/?retryWrites=true&w=majority&appName=Cineulagam
+      - MONGODB_DATABASE=cineulagam
+      - MONGODB_COLLECTION=posted_articles
+      # Blogger API Configuration
+      - BLOGGER_BLOG_ID=6380171182056049355
+      - BLOGGER_CREDENTIALS_FILE=credentials.json
+      - BLOGGER_TOKEN_FILE=token.pickle
+      # Telegram Bot Configuration (replace with your actual values)
+      - TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+      - TELEGRAM_CHANNEL_ID=@your_channel_username_or_channel_id
+      # Logging Configuration
+      - LOG_LEVEL=INFO
+      - LOG_FILE=cineulagam_publisher.log
+    volumes:
+      # Mount logs directory for persistence
+      - ./logs:/app/logs
+      # Mount data directory if you have persistent data
+      - ./data:/app/data
+      # Mount credentials file if it exists
+      - ./credentials.json:/app/credentials.json:ro
+      - ./token.pickle:/app/token.pickle:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - cineulagam-network
+
+  # Optional: Add MongoDB if you're using it
+  # mongodb:
+  #   image: mongo:7.0
+  #   container_name: cineulagam-mongodb
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongodb_data:/data/db
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=admin
+  #     - MONGO_INITDB_ROOT_PASSWORD=password
+  #   networks:
+  #     - cineulagam-network
+
+networks:
+  cineulagam-network:
+    driver: bridge
+
+# volumes:
+#   mongodb_data:
