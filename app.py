@@ -312,8 +312,21 @@ def get_status():
 def start_publisher():
     """Start the publisher"""
     global publisher_status
-    
+    # Handle POST request - start the publisher
+    if publisher_status['is_running']:
+        return jsonify({
+            'success': False,
+            'message': 'Publisher is already running'
+        }), 400
     # Handle GET request - return HTML with current date and time
+
+   
+    
+    # Start publisher in a separate thread
+    thread = threading.Thread(target=run_publisher)
+    thread.daemon = True
+    thread.start()
+    
     if request.method == 'GET':
         # Get UK time
         uk_tz = pytz.timezone('Europe/London')
@@ -375,18 +388,6 @@ def start_publisher():
         </html>
         '''
         return html_content
-    
-    # Handle POST request - start the publisher
-    if publisher_status['is_running']:
-        return jsonify({
-            'success': False,
-            'message': 'Publisher is already running'
-        }), 400
-    
-    # Start publisher in a separate thread
-    thread = threading.Thread(target=run_publisher)
-    thread.daemon = True
-    thread.start()
     
     return jsonify({
         'success': True,
