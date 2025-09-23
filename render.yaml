@@ -1,0 +1,52 @@
+# Render.com configuration for automated deployment
+services:
+  - type: web
+    name: cineulagam-publisher
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DATABASE
+        value: cineulagam
+      - key: MONGODB_COLLECTION
+        value: posted_articles
+      - key: BLOGGER_BLOG_ID
+        sync: false
+      - key: BLOGGER_CREDENTIALS_FILE
+        value: credentials.json
+      - key: BLOGGER_TOKEN_FILE
+        value: token.pickle
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHANNEL_ID
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO
+
+  - type: cron
+    name: cineulagam-cron
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    schedule: "0 */2 * * *"  # Every 2 hours
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DATABASE
+        value: cineulagam
+      - key: MONGODB_COLLECTION
+        value: posted_articles
+      - key: BLOGGER_BLOG_ID
+        sync: false
+      - key: BLOGGER_CREDENTIALS_FILE
+        value: credentials.json
+      - key: BLOGGER_TOKEN_FILE
+        value: token.pickle
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHANNEL_ID
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO
