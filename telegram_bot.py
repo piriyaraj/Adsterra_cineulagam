@@ -18,8 +18,8 @@ class TelegramBot:
     
     def __init__(self):
         """Initialize Telegram Bot with token and channel ID"""
-        self.bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
-        self.channel_id = os.getenv('TELEGRAM_CHANNEL_ID')
+        self.bot_token = os.getenv('TELEGRAM_BOT_TOKEN','8204617778:AAE3oY_BvngFe2Ywfa-qz6f78_JPW6HrrM4')
+        self.channel_id = os.getenv('TELEGRAM_CHANNEL_ID','kollywoodmirrors')
         
         if not self.bot_token or self.bot_token.strip() == "":
             logger.warning("TELEGRAM_BOT_TOKEN not configured - Telegram posting will be disabled")
