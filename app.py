@@ -10,6 +10,7 @@ import logging
 import threading
 import time
 from datetime import datetime
+import pytz
 from flask import Flask, jsonify, request, render_template_string
 from dotenv import load_dotenv
 
@@ -312,6 +313,70 @@ def start_publisher():
     """Start the publisher"""
     global publisher_status
     
+    # Handle GET request - return HTML with current date and time
+    if request.method == 'GET':
+        # Get UK time
+        uk_tz = pytz.timezone('Europe/London')
+        current_time = datetime.now(uk_tz).strftime('%Y-%m-%d %H:%M:%S')
+        html_content = f'''
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>{current_time} - Extractor Started</title>
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }}
+                .container {{
+                    background: white;
+                    border-radius: 15px;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                    padding: 40px;
+                    text-align: center;
+                    max-width: 600px;
+                }}
+                h1 {{
+                    color: #2c3e50;
+                    margin-bottom: 20px;
+                }}
+                .status {{
+                    background: #27ae60;
+                    color: white;
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin: 20px 0;
+                    font-size: 18px;
+                }}
+                .info {{
+                    color: #7f8c8d;
+                    margin-top: 20px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>{current_time} - Extractor Started</h1>
+                <div class="status">Publisher Status: Ready to Start</div>
+                <p>Use POST method to actually start the publisher</p>
+                <div class="info">
+                    <p>This page shows the current date and time when accessed via GET request</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        '''
+        return html_content
+    
+    # Handle POST request - start the publisher
     if publisher_status['is_running']:
         return jsonify({
             'success': False,
