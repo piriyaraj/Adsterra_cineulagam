@@ -130,7 +130,6 @@ dmypy.json
 
 # Project specific
 *.log
-token.pickle
 env.env
 .env
 
