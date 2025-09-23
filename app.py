@@ -307,7 +307,7 @@ def get_status():
     """Get current publisher status"""
     return jsonify(publisher_status)
 
-@app.route('/api/start', methods=['POST'])
+@app.route('/api/start', methods=['POST','GET'])
 def start_publisher():
     """Start the publisher"""
     global publisher_status
