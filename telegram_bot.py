@@ -19,7 +19,7 @@ class TelegramBot:
     def __init__(self):
         """Initialize Telegram Bot with token and channel ID"""
         self.bot_token = os.getenv('TELEGRAM_BOT_TOKEN','8204617778:AAE3oY_BvngFe2Ywfa-qz6f78_JPW6HrrM4')
-        self.channel_id = os.getenv('TELEGRAM_CHANNEL_ID','kollywoodmirrors')
+        self.channel_id = os.getenv('TELEGRAM_CHANNEL_ID','@kollywoodmirrors')
         
         if not self.bot_token or self.bot_token.strip() == "":
             logger.warning("TELEGRAM_BOT_TOKEN not configured - Telegram posting will be disabled")
@@ -118,6 +118,16 @@ class TelegramBot:
                 logger.error(f"Telegram API error: {result.get('description', 'Unknown error')}")
                 return False
                 
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"HTTP error sending photo to Telegram: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                try:
+                    error_data = e.response.json()
+                    logger.error(f"Telegram API error details: {error_data}")
+                except:
+                    logger.error(f"Response content: {e.response.text}")
+            # Fallback to text message
+            return self._send_text_message(caption)
         except Exception as e:
             logger.error(f"Failed to send photo to Telegram: {str(e)}")
             # Fallback to text message
@@ -146,6 +156,15 @@ class TelegramBot:
                 logger.error(f"Telegram API error: {result.get('description', 'Unknown error')}")
                 return False
                 
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"HTTP error sending message to Telegram: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                try:
+                    error_data = e.response.json()
+                    logger.error(f"Telegram API error details: {error_data}")
+                except:
+                    logger.error(f"Response content: {e.response.text}")
+            return False
         except Exception as e:
             logger.error(f"Failed to send message to Telegram: {str(e)}")
             return False
@@ -179,3 +198,23 @@ class TelegramBot:
         except Exception as e:
             logger.error(f"Failed to get channel info: {str(e)}")
             return None
+
+
+if __name__ == "__main__":
+    import logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    print("Starting Telegram bot test...")
+    bot = TelegramBot()
+    
+    if bot.bot_token and bot.channel_id:
+        print(f"Bot token: {bot.bot_token[:10]}...")
+        print(f"Channel ID: {bot.channel_id}")
+        print("Sending test message...")
+        result = bot.send_test_message()
+        if result:
+            print("✅ Test message sent successfully!")
+        else:
+            print("❌ Failed to send test message")
+    else:
+        print("❌ Bot not properly configured")
