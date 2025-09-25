@@ -62,13 +62,13 @@ class TelegramBot:
         
         try:
             # Format the message
-            message = self._format_message(title, content, blogger_url)
+            message = self._format_message(title, "", blogger_url)
             
             # If image is available, send photo with caption
             if image_url:
-                return self._send_photo_with_caption(image_url, message)
+                return self._send_photo_with_caption(image_url, message, blogger_url)
             else:
-                return self._send_text_message(message)
+                return self._send_text_message(message, blogger_url)
                 
         except Exception as e:
             logger.error(f"Failed to post to Telegram: {str(e)}")
@@ -89,12 +89,11 @@ class TelegramBot:
         
         # Format message
         message = f"📰 *{title}*\n\n"
-        message += f"{snippet}\n\n"
-        message += f"[Read more]({blogger_url})"
+        message += f"{snippet}"
         
         return message
     
-    def _send_photo_with_caption(self, image_url: str, caption: str) -> bool:
+    def _send_photo_with_caption(self, image_url: str, caption: str, blogger_url: str = None) -> bool:
         """Send photo with caption to Telegram channel"""
         try:
             url = f"{self.base_url}/sendPhoto"
@@ -106,6 +105,18 @@ class TelegramBot:
                 'parse_mode': 'Markdown',
                 'disable_web_page_preview': False
             }
+            
+            # Add inline keyboard with "Read more" button if URL is provided
+            if blogger_url:
+                reply_markup = {
+                    'inline_keyboard': [[
+                        {
+                            'text': '📖 Read More',
+                            'url': blogger_url
+                        }
+                    ]]
+                }
+                data['reply_markup'] = str(reply_markup).replace("'", '"')
             
             response = requests.post(url, data=data, timeout=30)
             response.raise_for_status()
@@ -127,13 +138,13 @@ class TelegramBot:
                 except:
                     logger.error(f"Response content: {e.response.text}")
             # Fallback to text message
-            return self._send_text_message(caption)
+            return self._send_text_message(caption, blogger_url)
         except Exception as e:
             logger.error(f"Failed to send photo to Telegram: {str(e)}")
             # Fallback to text message
-            return self._send_text_message(caption)
+            return self._send_text_message(caption, blogger_url)
     
-    def _send_text_message(self, message: str) -> bool:
+    def _send_text_message(self, message: str, blogger_url: str = None) -> bool:
         """Send text message to Telegram channel"""
         try:
             url = f"{self.base_url}/sendMessage"
@@ -144,6 +155,18 @@ class TelegramBot:
                 'parse_mode': 'Markdown',
                 'disable_web_page_preview': False
             }
+            
+            # Add inline keyboard with "Read more" button if URL is provided
+            if blogger_url:
+                reply_markup = {
+                    'inline_keyboard': [[
+                        {
+                            'text': '📖 Read More',
+                            'url': blogger_url
+                        }
+                    ]]
+                }
+                data['reply_markup'] = str(reply_markup).replace("'", '"')
             
             response = requests.post(url, data=data, timeout=30)
             response.raise_for_status()
