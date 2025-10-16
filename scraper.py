@@ -234,11 +234,42 @@ class ArticleScraper:
                 for script in content_elem(["script", "style"]):
                     script.decompose()
                 
-                content = content_elem.get_text(separator='\n', strip=True)
+                # Remove promotional content with class "article-promo"
+                for promo in content_elem.find_all(class_="article-promo"):
+                    promo.decompose()
+                
+                # Extract content while preserving iframe elements as HTML
+                content = self._extract_content_with_iframes(content_elem)
                 if content and len(content) > 100:  # Ensure substantial content
                     return content
         
         return None
+    
+    def _extract_content_with_iframes(self, content_elem) -> str:
+        """
+        Extract content while preserving iframe elements as HTML
+        and converting other elements to text
+        """
+        content_parts = []
+        
+        for element in content_elem.find_all():
+            print(element.name)
+            if element.name == 'blockquote':
+                print("iframe found................")
+                # Preserve iframe as HTML
+                iframe_html = str(element)
+                content_parts.append(iframe_html)
+            elif element.name in ['p', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                # For text elements, get the text content
+                text_content = element.get_text(strip=True)
+                if text_content:
+                    content_parts.append(text_content)
+            elif element.name == 'br':
+                # Preserve line breaks
+                content_parts.append('\n')
+        
+        # Join all parts with newlines
+        return '\n'.join(content_parts)
     
     def _extract_images(self, soup: BeautifulSoup, base_url: str) -> List[str]:
         """Extract all images from article, prioritizing .img-fluid in .ds-content"""
@@ -698,6 +729,7 @@ if __name__ == "__main__":
     articles = scraper.fetch_articles_from_sitemap()
     if articles:
         url = articles[0]['url']
+        url = "https://cineulagam.com/article/pradeep-gift-to-his-helper-video-goes-viral-1760618319"
         article = scraper.scrape_article(url)
         html_content = scraper.make_html_content(
             article['title'], 
